@@ -23,8 +23,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
+import edu.farmingdale.pizzapartybottomnavbar.ui.theme.PizzaPartyBottomNavBarTheme
 
 // ToDo 2: the slider should be able to change the text value of the screen
 
@@ -37,13 +40,40 @@ fun Screen3() {
 
 
     val context = LocalContext.current
-    Column ( modifier = Modifier.padding(horizontal = 20.dp).fillMaxSize(),
+    Column (
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0, 255, 10, 255),
+                        Color(0, 142, 255, 255)
+                    )
+                )
+            )
+            .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally){
-        Slider(value = sliderValue, onValueChange = { sliderValue=it }, Modifier.fillMaxWidth()
-            , enabled = chkd)
+        Slider(
+            value = sliderValue,
+            onValueChange = { sliderValue=it },
+            Modifier.fillMaxWidth(),
+            enabled = chkd
+        )
 
-        Text (fontSize = 20.sp, text = "Second Screen" )
+        Text (
+            fontSize = 20.sp,
+            text = "Slider Amount: $$sliderValue",
+            modifier = Modifier
+                .padding(bottom = 15.dp)
+        )
+
+        Text (
+            fontSize = 20.sp,
+            text = "Second Screen",
+            modifier = Modifier
+                .padding(bottom = 15.dp)
+        )
 
         Button(onClick = { val newInt = Intent(Intent.ACTION_VIEW)
             newInt.setData(Uri.parse("tel:6314202000"))
@@ -55,6 +85,14 @@ fun Screen3() {
 
     }
 
+}
+
+@Preview(showBackground = true)
+@Composable
+fun Screen3Preview() {
+    PizzaPartyBottomNavBarTheme {
+        Screen3()
+    }
 }
 
 

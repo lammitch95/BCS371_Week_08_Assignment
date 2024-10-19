@@ -22,9 +22,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import edu.farmingdale.pizzapartybottomnavbar.ui.theme.PizzaPartyBottomNavBarTheme
 import kotlin.math.ceil
 
 // ToDo 6: Add another level of hunger that is Hungry that is in between Medium and Very hungry
@@ -33,10 +36,7 @@ import kotlin.math.ceil
 // a subclass of ViewModel. Add the following properties to the PizzaPartyViewModel - see Brightspace
 
 @Composable
-fun PizzaPartyScreen( modifier: Modifier = Modifier) {
-    var totalPizzas by remember { mutableIntStateOf(0) }
-    var numPeopleInput by remember { mutableStateOf("") }
-    var hungerLevel by remember { mutableStateOf("Medium") }
+fun PizzaPartyScreen( modifier: Modifier = Modifier,partyViewModel: PizzaPartyViewModel = viewModel()) {
 
     Column(
         modifier = modifier.padding(10.dp)
@@ -48,26 +48,41 @@ fun PizzaPartyScreen( modifier: Modifier = Modifier) {
         )
         NumberField(
             labelText = "Number of people?",
-            textInput = numPeopleInput,
-            onValueChange = { numPeopleInput = it },
+            textInput = partyViewModel.numPeopleInput,
+            onValueChange = { partyViewModel.numPeopleInput = it },
             modifier = modifier.padding(bottom = 16.dp).fillMaxWidth()
         )
+
+        val selectedOption = when (partyViewModel.hungerLevel) {
+            HungerLevel.LIGHT -> "Light"
+            HungerLevel.MEDIUM -> "Medium"
+            HungerLevel.HUNGRY -> "Hungry"
+            HungerLevel.VERY_HUNGRY -> "Very hungry"
+        }
+
         RadioGroup(
             labelText = "How hungry?",
-            radioOptions = listOf("Light", "Medium", "Very hungry"),
-            selectedOption = hungerLevel,
-            onSelected = { hungerLevel = it },
+            radioOptions = listOf("Light", "Medium","Hungry", "Very hungry"),
+            selectedOption = selectedOption,
+            onSelected = {option ->
+                partyViewModel.hungerLevel = when (option) {
+                    "Light" -> HungerLevel.LIGHT
+                    "Medium" -> HungerLevel.MEDIUM
+                    "Hungry" -> HungerLevel.HUNGRY
+                    "Very hungry" -> HungerLevel.VERY_HUNGRY
+                    else -> HungerLevel.MEDIUM 
+                }
+                         },
             modifier = modifier
         )
         Text(
-            text = "Total pizzas: $totalPizzas",
+            text = "Total pizzas: ${partyViewModel.totalPizzas}",
             fontSize = 22.sp,
             modifier = modifier.padding(top = 16.dp, bottom = 16.dp)
         )
         Button(
-            onClick = {            totalPizzas = calculateNumPizzas(numPeopleInput.toInt(),
-                hungerLevel)
-
+            onClick = {
+                partyViewModel.calculateNumPizzas()
             },
             modifier = modifier.fillMaxWidth()
         ) {
@@ -142,9 +157,17 @@ fun calculateNumPizzas(
     val slicesPerPerson = when (hungerLevel) {
         "Light" -> 2
         "Medium" -> 3
+        "Hungry" -> 4
         else -> 5
     }
 
     return ceil(numPeople * slicesPerPerson / slicesPerPizza.toDouble()).toInt()
 }
 
+@Preview(showBackground = true)
+@Composable
+fun PizzaPartyScreenPreview() {
+    PizzaPartyBottomNavBarTheme {
+        PizzaPartyScreen()
+    }
+}
